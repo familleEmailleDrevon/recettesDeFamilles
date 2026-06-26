@@ -1181,139 +1181,8 @@
     .card-footer { width: 70px; min-width: 70px; }
   }
 
-  /* ───── BARRE MOBILE FIXE (Recherche flottante + Actualiser) ───── */
-  /* Visible par défaut, cachée sur grands écrans */
-  @media (min-width: 901px) {
-    .mobile-action-bar { display: none !important; }
-  }
 
-  .mobile-action-bar {
-    display: flex !important;
-    flex-direction: column;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 9999;
-    background: var(--bg2);
-    border-top: 1.5px solid var(--border);
-    padding: 10px 16px;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom, 16px));
-    gap: 8px;
-    box-shadow: 0 -4px 20px rgba(0,0,0,.12);
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-  }
 
-  @media (max-width: 900px) {
-    /* Cache la toolbar fixe en haut sur mobile — remplacée par la barre flottante en bas */
-    .toolbar { display: none; }
-
-    .mobile-action-bar {
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      z-index: 400;
-      background: var(--bg2);
-      border-top: 1.5px solid var(--border);
-      padding: 10px 16px;
-      padding-bottom: calc(10px + env(safe-area-inset-bottom, 16px));
-      gap: 8px;
-      box-shadow: 0 -4px 20px rgba(0,0,0,.12);
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
-    }
-
-    /* Barre de recherche flottante */
-    .mab-search-wrap {
-      position: relative;
-      width: 100%;
-    }
-    .mab-search-wrap .mab-search-ico {
-      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-      font-size: 1rem; pointer-events: none; color: var(--text3);
-    }
-    .mab-search-wrap input {
-      width: 100%;
-      padding: 13px 40px 13px 42px;
-      border: 1.5px solid var(--border);
-      border-radius: 22px;
-      background: var(--input-bg);
-      color: var(--text);
-      font-size: .95rem;
-      font-family: inherit;
-      outline: none;
-      box-sizing: border-box;
-      transition: border-color var(--transition);
-    }
-    .mab-search-wrap input:focus { border-color: var(--sage-light); }
-    .mab-search-clear {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      width: 22px; height: 22px; border-radius: 50%;
-      border: none; background: var(--text3); color: var(--bg2);
-      font-size: .7rem; font-weight: 700;
-      display: none; align-items: center; justify-content: center;
-      cursor: pointer;
-    }
-    .mab-search-clear.visible { display: flex; }
-
-    /* Bouton Actualiser pleine largeur */
-    .mab-refresh {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 13px 10px;
-      border-radius: var(--radius);
-      font-size: .95rem;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: pointer;
-      border: none;
-      background: var(--sage);
-      color: #fff;
-      transition: all var(--transition);
-      touch-action: manipulation;
-    }
-    .mab-refresh:active { background: var(--sage-light); }
-
-    /* Sélecteur de thème mobile — pastilles */
-    .mab-themes {
-      display: flex; align-items: center; gap: 8px;
-      padding: 4px 0;
-    }
-    .mab-themes-lbl {
-      font-size: .72rem; color: var(--text3); font-weight: 600;
-      letter-spacing: .05em; text-transform: uppercase;
-      white-space: nowrap; flex-shrink: 0;
-    }
-    .mab-themes-pills {
-      display: flex; gap: 7px; flex-wrap: wrap; flex: 1;
-    }
-    .mab-pill {
-      width: 26px; height: 26px; border-radius: 50%;
-      border: 2.5px solid transparent;
-      cursor: pointer; transition: transform .15s, border-color .15s;
-      flex-shrink: 0; touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .mab-pill:active { transform: scale(.88); }
-    .mab-pill.active { border-color: var(--text); transform: scale(1.15); }
-    /* Couleurs des pastilles */
-    .mab-pill[data-t="light"]    { background: #F7F5F0; border-color: #C8C0B8; }
-    .mab-pill[data-t="dark"]     { background: #232220; }
-    .mab-pill[data-t="bordeaux"] { background: #7A1E3A; }
-    .mab-pill[data-t="ocean"]    { background: #1E6F8E; }
-    .mab-pill[data-t="coffee"]   { background: #6B4F3B; }
-    .mab-pill[data-t="lavande"]  { background: #6B52B5; }
-    .mab-pill[data-t="foret"]    { background: #2D6B3A; }
-    .mab-pill[data-t="ardoise"]  { background: #3D5A72; }
-    .mab-pill[data-t="rose"]     { background: #C4607A; }
-    .mab-pill.active[data-t="light"] { border-color: #2A2420; }
-
-    /* Compensation : éviter que le contenu soit caché sous la barre */
-    main { padding-bottom: max(185px, calc(185px + env(safe-area-inset-bottom, 0px))); }
-  }
 </style>
 <style id="ro">
 .btn-add,.btn-io,.icon-btn[onclick*="openManageModal"],#themeSelect{display:none!important}
@@ -2636,17 +2505,8 @@ function changeTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('theme', theme);
   // Sync pastilles mobile
-  document.querySelectorAll('.mab-pill').forEach(p => {
-    p.classList.toggle('active', p.dataset.t === theme);
-  });
 }
 
-function mabSetTheme(theme) {
-  changeTheme(theme);
-  // Sync le select desktop
-  const sel = document.getElementById('themeSelect');
-  if (sel) sel.value = theme;
-}
 /* ════════════════════════════════════════
    HELP MODAL
 ════════════════════════════════════════ */
@@ -2885,29 +2745,6 @@ function escHTML(s='') {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-/* ════════════════════════════════════════
-   BARRE MOBILE — Recherche flottante + Actualiser
-════════════════════════════════════════ */
-function mabOnSearch(val) {
-  // Synchronise avec le champ de recherche principal (caché sur mobile)
-  const mainInput = document.getElementById('searchInput');
-  mainInput.value = val;
-  // Bouton effacer
-  document.getElementById('mabSearchClear').classList.toggle('visible', val.length > 0);
-  render();
-}
-
-function mabClearSearch() {
-  document.getElementById('mabSearchInput').value = '';
-  document.getElementById('searchInput').value = '';
-  document.getElementById('mabSearchClear').classList.remove('visible');
-  document.getElementById('mabSearchInput').focus();
-  render();
-}
-
-function mabRefresh() {
-  window.location.reload();
-}
 
 /* ════════════════════════════════════════
    INJECTEUR
@@ -3632,31 +3469,5 @@ async function nasAutoLoad() {
   </div>
 </div>
 
-<!-- ══════════ BARRE D'ACTIONS MOBILE ══════════ -->
-<div class="mobile-action-bar">
-  <!-- Recherche flottante -->
-  <div class="mab-search-wrap">
-    <span class="mab-search-ico">🔍</span>
-    <input type="text" id="mabSearchInput" placeholder="Rechercher une recette…" oninput="mabOnSearch(this.value)">
-    <button class="mab-search-clear" id="mabSearchClear" onclick="mabClearSearch()">✕</button>
-  </div>
-  <!-- Sélecteur de thème -->
-  <div class="mab-themes">
-    <span class="mab-themes-lbl">🎨</span>
-    <div class="mab-themes-pills">
-      <button class="mab-pill" data-t="light"    title="Clair"     onclick="mabSetTheme('light')"></button>
-      <button class="mab-pill" data-t="dark"     title="Sombre"    onclick="mabSetTheme('dark')"></button>
-      <button class="mab-pill" data-t="bordeaux" title="Bordeaux"  onclick="mabSetTheme('bordeaux')"></button>
-      <button class="mab-pill" data-t="ocean"    title="Océan"     onclick="mabSetTheme('ocean')"></button>
-      <button class="mab-pill" data-t="coffee"   title="Café"      onclick="mabSetTheme('coffee')"></button>
-      <button class="mab-pill" data-t="lavande"  title="Lavande"   onclick="mabSetTheme('lavande')"></button>
-      <button class="mab-pill" data-t="foret"    title="Forêt"     onclick="mabSetTheme('foret')"></button>
-      <button class="mab-pill" data-t="ardoise"  title="Ardoise"   onclick="mabSetTheme('ardoise')"></button>
-      <button class="mab-pill" data-t="rose"     title="Rose"      onclick="mabSetTheme('rose')"></button>
-    </div>
-  </div>
-  <!-- Actualiser -->
-  <button class="mab-refresh" id="mabRefreshBtn" onclick="mabRefresh()">↻ Actualiser</button>
-</div>
 </body>
 </html>
