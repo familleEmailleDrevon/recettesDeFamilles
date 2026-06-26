@@ -1187,6 +1187,22 @@
     .mobile-action-bar { display: none !important; }
   }
 
+  .mobile-action-bar {
+    display: flex !important;
+    flex-direction: column;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 9999;
+    background: var(--bg2);
+    border-top: 1.5px solid var(--border);
+    padding: 10px 16px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 16px));
+    gap: 8px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,.12);
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
   @media (max-width: 900px) {
     /* Cache la toolbar fixe en haut sur mobile — remplacée par la barre flottante en bas */
     .toolbar { display: none; }
