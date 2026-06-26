@@ -1251,7 +1251,7 @@ header{justify-content:center!important}
 <!-- HEADER -->
 <header>
   <div class="header-title">
-    Recettes familiales <span>et d'autre… <small style="font-size:.7em;opacity:.7">(mobile 1)</small></span>
+    Recettes familiales <span>et d'autre… <small id="appVersion" style="font-size:.7em;opacity:.7"></small></span>
   </div>
   <div class="header-actions">
     <button class="icon-btn" onclick="showHelp()" title="Aide">❓</button>
@@ -1494,25 +1494,6 @@ header{justify-content:center!important}
   </div>
 </div>
 
-<!-- ══════════ SAVE ON EXIT MODAL ══════════ -->
-<div class="modal-overlay" id="saveExitModal">
-  <div class="modal confirm-modal">
-    <div class="modal-header">
-      <span class="modal-title">💾 Exporter avant de partir ?</span>
-      <button class="modal-close" onclick="closeSaveExitModal()">✕</button>
-    </div>
-    <div class="confirm-body">
-      <div class="ico">📦</div>
-      <p>Vous avez des recettes en session.<br>
-      <span style="font-size:.82rem;opacity:.7;">Exportez votre carnet pour ne rien perdre (photos incluses).</span></p>
-    </div>
-    <div class="confirm-actions">
-      <button class="btn-cancel" onclick="closeSaveExitModal()">Quitter sans sauvegarder</button>
-      <button class="btn-confirm-del" style="background:var(--sage)" onclick="exportAndExit()">💾 Exporter JSON</button>
-    </div>
-    <button class="btn-close-mobile" onclick="closeSaveExitModal()">✕ Fermer</button>
-  </div>
-</div>
 
 <!-- ══════════ HELP MODAL ══════════ -->
 <div class="modal-overlay" id="helpModal">
@@ -1699,28 +1680,12 @@ window.addEventListener('DOMContentLoaded',function(){recipes=D.recipes;customCa
 
 let exitConfirmed = false;
 
-window.addEventListener('beforeunload', e => {
-  if (exitConfirmed || recipes.length === 0) return;
-  e.preventDefault();
-  e.returnValue = '';
-  // Affiche la modale custom (le navigateur affichera aussi sa propre alerte)
-  document.getElementById('saveExitModal').classList.add('open');
-});
 
 function closeImportModal() {
   document.getElementById('importModal').classList.remove('open');
 }
 
-function closeSaveExitModal() {
-  exitConfirmed = true;
-  document.getElementById('saveExitModal').classList.remove('open');
-}
 
-function exportAndExit() {
-  exitConfirmed = true;
-  exportJSON();
-  document.getElementById('saveExitModal').classList.remove('open');
-}
 
 /* ════════════════════════════════════════
    STORAGE
@@ -3537,6 +3502,13 @@ async function nasAutoLoad() {
 </div>
 <script>
 (function() {
+  // Version auto-incrémentée
+  var v = parseInt(localStorage.getItem('app_version') || '0') + 1;
+  localStorage.setItem('app_version', v);
+  var el = document.getElementById('appVersion');
+  if (el) el.textContent = '(v' + v + ')';
+
+  // Barre mobile
   function initMbar() {
     var bar = document.getElementById('mbar');
     if (!bar) return;
