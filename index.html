@@ -2505,6 +2505,9 @@ function exportJSON() {
     contributeurs: customContributors,
     favoris,
     recettes,
+    github: (function() {
+      try { return JSON.parse(localStorage.getItem(GH_LS) || '{}'); } catch(e) { return {}; }
+    })(),
   };
 
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
@@ -3015,10 +3018,13 @@ function mabRefresh() {
 
   function injGhSave() {
     try {
+      var remember = document.getElementById('injGhRemember').checked;
       localStorage.setItem(GH_LS, JSON.stringify({
-        user: document.getElementById('injGhUser').value.trim(),
-        repo: document.getElementById('injGhRepo').value.trim(),
-        file: document.getElementById('injGhFile').value.trim() || 'index.html'
+        user:     document.getElementById('injGhUser').value.trim(),
+        repo:     document.getElementById('injGhRepo').value.trim(),
+        file:     document.getElementById('injGhFile').value.trim() || 'index.html',
+        remember: remember,
+        token:    remember ? document.getElementById('injGhToken').value.trim() : ''
       }));
     } catch(e) {}
   }
@@ -3026,9 +3032,13 @@ function mabRefresh() {
   function injGhLoad() {
     try {
       var c = JSON.parse(localStorage.getItem(GH_LS) || '{}');
-      if (c.user) document.getElementById('injGhUser').value = c.user;
-      if (c.repo) document.getElementById('injGhRepo').value = c.repo;
-      if (c.file) document.getElementById('injGhFile').value = c.file;
+      if (c.user)  document.getElementById('injGhUser').value = c.user;
+      if (c.repo)  document.getElementById('injGhRepo').value = c.repo;
+      if (c.file)  document.getElementById('injGhFile').value = c.file;
+      if (c.remember) {
+        document.getElementById('injGhRemember').checked = true;
+        if (c.token) document.getElementById('injGhToken').value = c.token;
+      }
     } catch(e) {}
   }
 
@@ -3378,7 +3388,11 @@ function nasBuildPayload() {
     photos:(r.images||[]).map(i=>i.dataURL),
     defaultPhotoIndex:(()=>{ const x=(r.images||[]).findIndex(i=>i.isDefault); return x>=0?x:0; })()
   }));
-  return { _version:2, theme, categories:customCategories, contributeurs:customContributors, favoris, recettes };
+  return { _version:2, theme, categories:customCategories, contributeurs:customContributors, favoris, recettes,
+    github: (function() {
+      try { return JSON.parse(localStorage.getItem(GH_LS) || '{}'); } catch(e) { return {}; }
+    })()
+  };
 }
 function nasParsePayload(data) {
   const favsSet = new Set(data.favoris||[]);
@@ -3392,7 +3406,8 @@ function nasParsePayload(data) {
   return { recipes:importedRecipes,
     categories:Array.isArray(data.categories)?data.categories:[],
     contributeurs:Array.isArray(data.contributeurs)?data.contributeurs:[],
-    theme:data.theme||null };
+    theme:data.theme||null,
+    github:data.github||null };
 }
 
 async function nasUpload() {
@@ -3440,6 +3455,9 @@ async function nasDownload() {
       try { localStorage.setItem('theme', parsed.theme); } catch(e) {}
       const sel = document.getElementById('themeSelect'); if (sel) sel.value = parsed.theme;
     }
+    if (parsed.github && Object.keys(parsed.github).length) {
+      try { localStorage.setItem(GH_LS, JSON.stringify(parsed.github)); } catch(e) {}
+    }
     hasUnsavedChanges = false; render();
     nasStatus(`✅ ${parsed.recipes.length} recette(s) chargées depuis le NAS !`, 'ok');
     toast(`🖥️ ${parsed.recipes.length} recette(s) importées depuis le NAS`);
@@ -3464,6 +3482,9 @@ async function nasAutoLoad() {
       document.documentElement.setAttribute('data-theme', parsed.theme);
       try { localStorage.setItem('theme', parsed.theme); } catch(e) {}
       const sel = document.getElementById('themeSelect'); if (sel) sel.value = parsed.theme;
+    }
+    if (parsed.github && Object.keys(parsed.github).length) {
+      try { localStorage.setItem(GH_LS, JSON.stringify(parsed.github)); } catch(e) {}
     }
     render();
     toast(`🖥️ Carnet chargé depuis le NAS (${recipes.length} recette${recipes.length!==1?'s':''})`);
@@ -3577,6 +3598,10 @@ async function nasAutoLoad() {
             <input class="inj-gh-input full" id="injGhFile" type="text"
               placeholder="Chemin du fichier (défaut : index.html)">
           </div>
+          <label style="display:flex;align-items:center;gap:7px;margin:7px 0 4px;cursor:pointer;font-size:.78rem;color:var(--text2)">
+            <input type="checkbox" id="injGhRemember" style="width:15px;height:15px;accent-color:var(--sage);cursor:pointer">
+            Mémoriser le token sur cet appareil
+          </label>
           <div style="font-size:.7rem;color:var(--text3);margin:5px 0 6px;line-height:1.6">
             Token → github.com · Settings · Developer settings · Personal access tokens (classic) · scope <strong>repo</strong>.<br>
             Les infos sont sauvegardées localement sur cet appareil uniquement.
