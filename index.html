@@ -1172,7 +1172,7 @@
   }
 
   /* ───── RESPONSIVE — très petit (≤ 380px) ───── */
-  @media (max-width: 480px) {
+  @media (max-width: 380px) {
     .header-title { font-size: .85rem; }
     .btn-add span { display: none; }   /* « ＋ » seul */
     .btn-add { padding: 0 12px; }
@@ -1182,9 +1182,12 @@
   }
 
   /* ───── BARRE MOBILE FIXE (Recherche flottante + Actualiser) ───── */
-  .mobile-action-bar { display: none; }
+  /* Barre mobile — cachée sur desktop, visible sur mobile */
+  @media (min-width: 901px) {
+    .mobile-action-bar { display: none !important; }
+  }
 
-  @media (max-width: 900px) {
+  @media (max-width: 640px) {
     /* Cache la toolbar fixe en haut sur mobile — remplacée par la barre flottante en bas */
     .toolbar { display: none; }
 
@@ -1196,12 +1199,9 @@
       z-index: 400;
       background: var(--bg2);
       border-top: 1.5px solid var(--border);
-      padding: 10px 16px;
-      padding-bottom: calc(10px + env(safe-area-inset-bottom, 16px));
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
       gap: 8px;
       box-shadow: 0 -4px 20px rgba(0,0,0,.12);
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
     }
 
     /* Barre de recherche flottante */
@@ -1293,7 +1293,7 @@
     .mab-pill.active[data-t="light"] { border-color: #2A2420; }
 
     /* Compensation : éviter que le contenu soit caché sous la barre */
-    main { padding-bottom: max(185px, calc(185px + env(safe-area-inset-bottom, 0px))); }
+    main { padding-bottom: 185px; }
   }
 </style>
 <style id="ro">
@@ -1319,7 +1319,7 @@ header{justify-content:center!important}
 <!-- HEADER -->
 <header>
   <div class="header-title">
-    Recettes familiales <span>et d'autre… <small style="font-size:.7em;opacity:.7">(mobile)</small></span>
+    Recettes familiales <span>et d'autre…</span>
   </div>
   <div class="header-actions">
     <button class="icon-btn" onclick="showHelp()" title="Aide">❓</button>
@@ -3084,9 +3084,6 @@ function mabRefresh() {
 
     // Utiliser le fichier HTML chargé par l'utilisateur
     var html = _SH;
-    console.log('[Injecteur] Fichier source :', html.length, 'caractères');
-    console.log('[Injecteur] Marqueur DOMContentLoaded trouvé :', html.indexOf("window.addEventListener('DOMContentLoaded'") > -1);
-    console.log('[Injecteur] Marqueur exitConfirmed trouvé :', html.indexOf('exitConfirmed') > -1);
 
     function safe(s) { return s.replace(/<\//g, '<\\/'); }
     var rj = safe(JSON.stringify(recipesCopy));
@@ -3105,20 +3102,11 @@ function mabRefresh() {
       + "});";
     // Remplacer le DOMContentLoaded original
     var MARK = "window.addEventListener('DOMContentLoaded'";
-    // Chercher la fin du bloc DOMContentLoaded — plusieurs marqueurs possibles selon la version
-    var AFTER_CANDIDATES = ["\n\nlet exitConfirmed", "\nlet exitConfirmed", "\n\nObject.defineProperty(window, 'recipes'", "\nwindow.addEventListener('beforeunload'"];
+    var AFTER = "\n\nlet exitConfirmed";
     var p = html.indexOf(MARK);
-    var e = -1;
-    for (var ci = 0; ci < AFTER_CANDIDATES.length; ci++) {
-      e = html.indexOf(AFTER_CANDIDATES[ci], p);
-      if (e > -1) break;
-    }
+    var e = html.indexOf(AFTER, p);
     if (p > -1 && e > -1) {
       html = html.slice(0, p) + newDom + html.slice(e);
-    } else if (p > -1) {
-      // Fallback : remplacer juste le listener sans couper
-      var endMark = html.indexOf('});', p);
-      if (endMark > -1) html = html.slice(0, p) + newDom + html.slice(endMark + 3);
     }
 
     var css = '<style id="ro">\n'
