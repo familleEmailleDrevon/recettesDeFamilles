@@ -1181,7 +1181,51 @@
     .card-footer { width: 70px; min-width: 70px; }
   }
 
-
+  /* ═══ BARRE MOBILE ═══ */
+  .mbar {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 500;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 16px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    background: var(--bg2);
+    border-top: 2px solid var(--border);
+    box-shadow: 0 -4px 20px rgba(0,0,0,.15);
+  }
+  .mbar-refresh {
+    width: 100%; padding: 12px;
+    background: var(--sage); color: #fff;
+    border: none; border-radius: var(--radius);
+    font-size: .95rem; font-weight: 700; font-family: inherit;
+    cursor: pointer; touch-action: manipulation;
+  }
+  .mbar-themes {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .mbar-lbl {
+    font-size: .72rem; font-weight: 700; color: var(--text3);
+    text-transform: uppercase; letter-spacing: .05em; flex-shrink: 0;
+  }
+  .mpill {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer; flex-shrink: 0;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mpill-active { border-color: var(--text) !important; transform: scale(1.2); }
+  .mpill[data-t="light"]    { background: #F7F5F0; border-color: #C8C0B8; }
+  .mpill[data-t="dark"]     { background: #232220; }
+  .mpill[data-t="bordeaux"] { background: #7A1E3A; }
+  .mpill[data-t="ocean"]    { background: #1E6F8E; }
+  .mpill[data-t="coffee"]   { background: #6B4F3B; }
+  .mpill[data-t="lavande"]  { background: #6B52B5; }
+  .mpill[data-t="foret"]    { background: #2D6B3A; }
+  .mpill[data-t="ardoise"]  { background: #3D5A72; }
+  .mpill[data-t="rose"]     { background: #C4607A; }
 
 </style>
 <style id="ro">
@@ -2504,7 +2548,13 @@ function handleImport(e) {
 function changeTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('theme', theme);
+  // Sync select desktop
+  var sel = document.getElementById('themeSelect');
+  if (sel) sel.value = theme;
   // Sync pastilles mobile
+  document.querySelectorAll('.mpill').forEach(function(p) {
+    p.classList.toggle('mpill-active', p.dataset.t === theme);
+  });
 }
 
 /* ════════════════════════════════════════
@@ -3468,6 +3518,47 @@ async function nasAutoLoad() {
     </div>
   </div>
 </div>
+
+<!-- BARRE MOBILE -->
+<div class="mbar" id="mbar">
+  <div class="mbar-themes">
+    <span class="mbar-lbl">🎨</span>
+    <button class="mpill" data-t="light"    onclick="changeTheme('light')"    title="Clair"></button>
+    <button class="mpill" data-t="dark"     onclick="changeTheme('dark')"     title="Sombre"></button>
+    <button class="mpill" data-t="bordeaux" onclick="changeTheme('bordeaux')" title="Bordeaux"></button>
+    <button class="mpill" data-t="ocean"    onclick="changeTheme('ocean')"    title="Océan"></button>
+    <button class="mpill" data-t="coffee"   onclick="changeTheme('coffee')"   title="Café"></button>
+    <button class="mpill" data-t="lavande"  onclick="changeTheme('lavande')"  title="Lavande"></button>
+    <button class="mpill" data-t="foret"    onclick="changeTheme('foret')"    title="Forêt"></button>
+    <button class="mpill" data-t="ardoise"  onclick="changeTheme('ardoise')"  title="Ardoise"></button>
+    <button class="mpill" data-t="rose"     onclick="changeTheme('rose')"     title="Rose"></button>
+  </div>
+  <button class="mbar-refresh" onclick="typeof nasDownload==='function' ? nasDownload() : location.reload()">↻ Actualiser depuis le NAS</button>
+</div>
+<script>
+(function() {
+  function initMbar() {
+    var bar = document.getElementById('mbar');
+    if (!bar) return;
+    function checkSize() {
+      bar.style.display = window.innerWidth <= 900 ? 'flex' : 'none';
+    }
+    checkSize();
+    window.addEventListener('resize', checkSize);
+    var main = document.querySelector('main');
+    if (main) main.style.paddingBottom = '140px';
+    var theme = localStorage.getItem('theme') || 'light';
+    document.querySelectorAll('.mpill').forEach(function(p) {
+      p.classList.toggle('mpill-active', p.dataset.t === theme);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMbar);
+  } else {
+    initMbar();
+  }
+})();
+</script>
 
 </body>
 </html>
