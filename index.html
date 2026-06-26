@@ -1319,7 +1319,7 @@ header{justify-content:center!important}
 <!-- HEADER -->
 <header>
   <div class="header-title">
-    Recettes familiales <span>et d'autre…</span>
+    Recettes familiales <span>et d'autre… <small style="font-size:.7em;opacity:.7">(mobile)</small></span>
   </div>
   <div class="header-actions">
     <button class="icon-btn" onclick="showHelp()" title="Aide">❓</button>
@@ -3084,6 +3084,9 @@ function mabRefresh() {
 
     // Utiliser le fichier HTML chargé par l'utilisateur
     var html = _SH;
+    console.log('[Injecteur] Fichier source :', html.length, 'caractères');
+    console.log('[Injecteur] Marqueur DOMContentLoaded trouvé :', html.indexOf("window.addEventListener('DOMContentLoaded'") > -1);
+    console.log('[Injecteur] Marqueur exitConfirmed trouvé :', html.indexOf('exitConfirmed') > -1);
 
     function safe(s) { return s.replace(/<\//g, '<\\/'); }
     var rj = safe(JSON.stringify(recipesCopy));
@@ -3102,11 +3105,20 @@ function mabRefresh() {
       + "});";
     // Remplacer le DOMContentLoaded original
     var MARK = "window.addEventListener('DOMContentLoaded'";
-    var AFTER = "\n\nlet exitConfirmed";
+    // Chercher la fin du bloc DOMContentLoaded — plusieurs marqueurs possibles selon la version
+    var AFTER_CANDIDATES = ["\n\nlet exitConfirmed", "\nlet exitConfirmed", "\n\nObject.defineProperty(window, 'recipes'", "\nwindow.addEventListener('beforeunload'"];
     var p = html.indexOf(MARK);
-    var e = html.indexOf(AFTER, p);
+    var e = -1;
+    for (var ci = 0; ci < AFTER_CANDIDATES.length; ci++) {
+      e = html.indexOf(AFTER_CANDIDATES[ci], p);
+      if (e > -1) break;
+    }
     if (p > -1 && e > -1) {
       html = html.slice(0, p) + newDom + html.slice(e);
+    } else if (p > -1) {
+      // Fallback : remplacer juste le listener sans couper
+      var endMark = html.indexOf('});', p);
+      if (endMark > -1) html = html.slice(0, p) + newDom + html.slice(endMark + 3);
     }
 
     var css = '<style id="ro">\n'
